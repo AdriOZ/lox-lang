@@ -1,4 +1,5 @@
 use std::fmt;
+use std::option::Option;
 
 #[derive(Debug)]
 pub enum Type {
@@ -52,14 +53,14 @@ pub enum Type {
 }
 
 pub struct Token {
-    typ: Type,
-    lexeme: String,
-    literal: String,
-    line: u32,
+    pub typ: Type,
+    pub lexeme: Option<String>,
+    pub literal: Option<String>,
+    pub line: usize,
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?} {} {}", self.typ, self.lexeme, self.literal)
+        write!(f, "{:?} {:?} {:?}", self.typ, self.lexeme, self.literal)
     }
 }
