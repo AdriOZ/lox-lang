@@ -33,22 +33,14 @@ impl Scanner {
             };
             result.push(tok);
             tok = self.next();
-            self.start = self.cursor;
         }
         result
     }
 
     fn next(&mut self) -> Token {
-        // Skip whitespace
-        let mut current = self.advance();
-
-        while let Some(c) = current {
-            if c.is_whitespace() {
-                current = self.advance();
-            } else {
-                break;
-            }
-        }
+        self.skip_whitespace();
+        self.start = self.cursor;
+        let current = self.advance();
 
         if let Some(c) = current {
             match c {
@@ -183,13 +175,12 @@ impl Scanner {
                 '/' => {
                     if let Some(_) = self.advance_if_match('/') {
                         while let Some(skip) = self.peek() {
-                            if skip != '\n' {
+                            if skip != '\n' && skip != '\r' {
                                 self.advance();
                             } else {
                                 break;
                             }
                         }
-                        self.start = self.cursor;
                         self.next()
                     } else {
                         Token {
@@ -201,6 +192,7 @@ impl Scanner {
                     }
                 }
                 '"' => {
+                    self.start = self.cursor;
                     while let Some(skip) = self.peek() {
                         if skip != '"' {
                             self.advance();
@@ -211,6 +203,21 @@ impl Scanner {
                     self.advance();
                     Token {
                         typ: Type::String,
+                        lexeme: None,
+                        literal: self.get_current_literal(),
+                        line: self.line,
+                    }
+                }
+                '0'..='9' => {
+                    while let Some(skip) = self.peek() {
+                        if skip.is_numeric() {
+                            self.advance();
+                        } else {
+                            break;
+                        }
+                    }
+                    Token {
+                        typ: Type::Number,
                         lexeme: None,
                         literal: self.get_current_literal(),
                         line: self.line,
@@ -263,6 +270,15 @@ impl Scanner {
             } else {
                 None
             }
+        }
+    }
+
+    fn skip_whitespace(&mut self) {
+        while !self.is_at_end() && self.source[self.cursor].is_whitespace() {
+            if self.source[self.cursor] == '\n' {
+                self.line += 1;
+            }
+            self.cursor += 1;
         }
     }
 
