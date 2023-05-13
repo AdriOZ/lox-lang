@@ -5,19 +5,21 @@ pub struct Scanner {
     source: Vec<char>,
 
     cursor: usize,
-    line: usize,
+    start: usize,
     end: usize,
+    line: usize,
 }
 
 impl Scanner {
-    pub fn new(source: String) -> Self {
+    pub fn new(source: &String) -> Self {
         let end = source.len();
 
         Scanner {
             source: source.chars().collect(),
             cursor: 0,
-            line: 1,
+            start: 0,
             end,
+            line: 1,
         }
     }
 
@@ -33,96 +35,125 @@ impl Scanner {
             };
             result.push(tok);
             tok = self.next();
+            self.start = self.cursor;
         }
         result
     }
 
     fn next(&mut self) -> Token {
         // Skip whitespace
-        while self.source[self.cursor].is_whitespace() && self.cursor < self.end {
-            self.cursor += 1;
+        let mut current = self.advance();
 
-            if self.source[self.cursor] == '\n' {
-                self.line += 1;
+        while let Some(c) = current {
+            if c.is_whitespace() {
+                current = self.advance();
+            } else {
+                break;
             }
         }
 
-        if self.cursor >= self.end {
-            Token {
-                typ: Type::EndOfFile,
-                lexeme: Option::None,
-                literal: Option::None,
-                line: self.line,
-            }
-        } else {
-            match self.source[self.cursor] {
+        if let Some(c) = current {
+            match c {
                 '(' => Token {
                     typ: Type::LeftParen,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 ')' => Token {
                     typ: Type::RightParen,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '{' => Token {
                     typ: Type::LeftBrace,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '}' => Token {
                     typ: Type::RightBrace,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 ',' => Token {
                     typ: Type::Comma,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '.' => Token {
                     typ: Type::Dot,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 ';' => Token {
                     typ: Type::Semicolon,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '+' => Token {
                     typ: Type::Plus,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '-' => Token {
                     typ: Type::Minus,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 '*' => Token {
                     typ: Type::Star,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
                 _ => Token {
                     typ: Type::EndOfFile,
-                    lexeme: Option::None,
-                    literal: Option::None,
+                    lexeme: None,
+                    literal: self.get_current_literal(),
                     line: self.line,
                 },
             }
+        } else {
+            Token {
+                typ: Type::EndOfFile,
+                lexeme: None,
+                literal: None,
+                line: self.line,
+            }
         }
+    }
+
+    fn is_at_end(&self) -> bool {
+        self.cursor >= self.end
+    }
+
+    fn advance(&mut self) -> Option<char> {
+        if self.is_at_end() {
+            None
+        } else {
+            let current = self.source[self.cursor];
+
+            if current == '\n' {
+                self.line += 1;
+            }
+            self.cursor += 1;
+            Some(current)
+        }
+    }
+
+    fn get_current_literal(&self) -> Option<String> {
+        Some(
+            String::from_iter((&self.source[self.start..self.cursor]).iter())
+                .trim()
+                .to_string(),
+        )
     }
 }

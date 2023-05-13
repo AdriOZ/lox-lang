@@ -52,6 +52,7 @@ pub enum Type {
     EndOfFile,
 }
 
+#[derive(Debug)]
 pub struct Token {
     pub typ: Type,
     pub lexeme: Option<String>,

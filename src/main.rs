@@ -23,7 +23,10 @@ fn run_repl() {
         io::stdin()
             .read_line(&mut line)
             .expect("Failed to read line");
-        println!("{}", line);
+
+        let mut scanner = scanner::Scanner::new(&line);
+        let tokens = scanner.parse();
+        println!("{:#?}", tokens);
     }
 }
 
