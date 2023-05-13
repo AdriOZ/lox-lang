@@ -1,4 +1,4 @@
-use super::token::{Token, Type};
+use super::token::{Token, Type, Value};
 use std::option::Option;
 
 pub struct Scanner {
@@ -47,61 +47,61 @@ impl Scanner {
                 '(' => Token {
                     typ: Type::LeftParen,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 ')' => Token {
                     typ: Type::RightParen,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '{' => Token {
                     typ: Type::LeftBrace,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '}' => Token {
                     typ: Type::RightBrace,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 ',' => Token {
                     typ: Type::Comma,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '.' => Token {
                     typ: Type::Dot,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 ';' => Token {
                     typ: Type::Semicolon,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '+' => Token {
                     typ: Type::Plus,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '-' => Token {
                     typ: Type::Minus,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '*' => Token {
                     typ: Type::Star,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '!' => {
@@ -109,14 +109,14 @@ impl Scanner {
                         Token {
                             typ: Type::BangEqual,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
                         Token {
                             typ: Type::Bang,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -126,14 +126,14 @@ impl Scanner {
                         Token {
                             typ: Type::EqualEqual,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
                         Token {
                             typ: Type::Equal,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -143,14 +143,14 @@ impl Scanner {
                         Token {
                             typ: Type::LessEqual,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
                         Token {
                             typ: Type::Less,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -160,14 +160,14 @@ impl Scanner {
                         Token {
                             typ: Type::GreaterEqual,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
                         Token {
                             typ: Type::Greater,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -186,7 +186,7 @@ impl Scanner {
                         Token {
                             typ: Type::Slash,
                             lexeme: None,
-                            literal: self.get_current_literal(),
+                            literal: Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -204,14 +204,19 @@ impl Scanner {
                     Token {
                         typ: Type::String,
                         lexeme: None,
-                        literal: self.get_current_literal(),
+                        literal: Value::Str(self.get_current_literal()),
                         line: self.line,
                     }
                 }
                 '0'..='9' => {
+                    let mut decimal = false;
+
                     while let Some(skip) = self.peek() {
                         if skip.is_numeric() {
                             self.advance();
+                        } else if skip == '.' && !decimal {
+                            self.advance();
+                            decimal = true;
                         } else {
                             break;
                         }
@@ -219,14 +224,14 @@ impl Scanner {
                     Token {
                         typ: Type::Number,
                         lexeme: None,
-                        literal: self.get_current_literal(),
+                        literal: Value::Num(self.get_current_literal().parse::<f64>().unwrap()),
                         line: self.line,
                     }
                 }
                 _ => Token {
                     typ: Type::EndOfFile,
                     lexeme: None,
-                    literal: self.get_current_literal(),
+                    literal: Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
             }
@@ -234,7 +239,7 @@ impl Scanner {
             Token {
                 typ: Type::EndOfFile,
                 lexeme: None,
-                literal: None,
+                literal: Value::None,
                 line: self.line,
             }
         }
@@ -290,11 +295,9 @@ impl Scanner {
         }
     }
 
-    fn get_current_literal(&self) -> Option<String> {
-        Some(
-            String::from_iter((&self.source[self.start..self.cursor]).iter())
-                .trim()
-                .replace('"', ""),
-        )
+    fn get_current_literal(&self) -> String {
+        String::from_iter((&self.source[self.start..self.cursor]).iter())
+            .trim()
+            .replace('"', "")
     }
 }
