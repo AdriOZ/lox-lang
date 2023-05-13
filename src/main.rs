@@ -34,7 +34,9 @@ fn run_file(filename: &String) {
     let path = Path::new(filename.as_str());
     if path.is_file() {
         let contents = fs::read_to_string(path).expect("Cannot read file");
-        println!("File contents:\n{}", contents);
+        let mut scanner = scanner::Scanner::new(&contents);
+        let tokens = scanner.parse();
+        println!("{:#?}", tokens);
     } else {
         println!("File {} does not exist", filename);
     }

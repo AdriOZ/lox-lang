@@ -12,13 +12,11 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(source: &String) -> Self {
-        let end = source.len();
-
         Scanner {
             source: source.chars().collect(),
             cursor: 0,
             start: 0,
-            end,
+            end: source.len(),
             line: 1,
         }
     }
@@ -114,6 +112,110 @@ impl Scanner {
                     literal: self.get_current_literal(),
                     line: self.line,
                 },
+                '!' => {
+                    if let Some(_) = self.advance_if_match('=') {
+                        Token {
+                            typ: Type::BangEqual,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    } else {
+                        Token {
+                            typ: Type::Bang,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    }
+                }
+                '=' => {
+                    if let Some(_) = self.advance_if_match('=') {
+                        Token {
+                            typ: Type::EqualEqual,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    } else {
+                        Token {
+                            typ: Type::Equal,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    }
+                }
+                '<' => {
+                    if let Some(_) = self.advance_if_match('=') {
+                        Token {
+                            typ: Type::LessEqual,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    } else {
+                        Token {
+                            typ: Type::Less,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    }
+                }
+                '>' => {
+                    if let Some(_) = self.advance_if_match('=') {
+                        Token {
+                            typ: Type::GreaterEqual,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    } else {
+                        Token {
+                            typ: Type::Greater,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    }
+                }
+                '/' => {
+                    if let Some(_) = self.advance_if_match('/') {
+                        while let Some(skip) = self.peek() {
+                            if skip != '\n' {
+                                self.advance();
+                            } else {
+                                break;
+                            }
+                        }
+                        self.start = self.cursor;
+                        self.next()
+                    } else {
+                        Token {
+                            typ: Type::Slash,
+                            lexeme: None,
+                            literal: self.get_current_literal(),
+                            line: self.line,
+                        }
+                    }
+                }
+                '"' => {
+                    while let Some(skip) = self.peek() {
+                        if skip != '"' {
+                            self.advance();
+                        } else {
+                            break;
+                        }
+                    }
+                    self.advance();
+                    Token {
+                        typ: Type::String,
+                        lexeme: None,
+                        literal: self.get_current_literal(),
+                        line: self.line,
+                    }
+                }
                 _ => Token {
                     typ: Type::EndOfFile,
                     lexeme: None,
@@ -149,11 +251,34 @@ impl Scanner {
         }
     }
 
+    fn advance_if_match(&mut self, c: char) -> Option<char> {
+        if self.is_at_end() {
+            None
+        } else {
+            let current = self.source[self.cursor];
+
+            if current == c {
+                self.cursor += 1;
+                Some(current)
+            } else {
+                None
+            }
+        }
+    }
+
+    fn peek(&self) -> Option<char> {
+        if self.is_at_end() {
+            None
+        } else {
+            Some(self.source[self.cursor])
+        }
+    }
+
     fn get_current_literal(&self) -> Option<String> {
         Some(
             String::from_iter((&self.source[self.start..self.cursor]).iter())
                 .trim()
-                .to_string(),
+                .replace('"', ""),
         )
     }
 }
