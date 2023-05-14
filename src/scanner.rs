@@ -1,4 +1,4 @@
-use super::token::{Token, Type, Value};
+use super::token::*;
 use std::option::Option;
 
 pub struct Scanner {
@@ -228,12 +228,50 @@ impl Scanner {
                         line: self.line,
                     }
                 }
-                _ => Token {
-                    typ: Type::EndOfFile,
-                    lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
-                    line: self.line,
-                },
+                _ => {
+                    if c == '-' || c.is_alphabetic() {
+                        while let Some(skip) = self.peek() {
+                            if skip == '-' || skip.is_alphanumeric() {
+                                self.advance();
+                            } else {
+                                break;
+                            }
+                        }
+                        let current_literal = self.get_current_literal();
+                        let current_type = match current_literal.as_str() {
+                            "and" => Type::And,
+                            "class" => Type::Class,
+                            "else" => Type::Else,
+                            "fun" => Type::Fun,
+                            "for" => Type::For,
+                            "if" => Type::If,
+                            "nil" => Type::Nil,
+                            "or" => Type::Or,
+                            "print" => Type::Print,
+                            "return" => Type::Return,
+                            "super" => Type::Super,
+                            "this" => Type::This,
+                            "true" => Type::True,
+                            "false" => Type::False,
+                            "var" => Type::Var,
+                            "while" => Type::While,
+                            _ => Type::Identifier,
+                        };
+                        Token {
+                            typ: current_type,
+                            lexeme: None,
+                            literal: Value::Str(current_literal),
+                            line: self.line,
+                        }
+                    } else {
+                        Token {
+                            typ: Type::EndOfFile,
+                            lexeme: None,
+                            literal: Value::Str(self.get_current_literal()),
+                            line: self.line,
+                        }
+                    }
+                }
             }
         } else {
             Token {
