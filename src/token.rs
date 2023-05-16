@@ -1,6 +1,6 @@
 use std::option::Option;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Type {
     // Single character tokens
     LeftParen,
@@ -51,7 +51,7 @@ pub enum Type {
     EndOfFile,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Str(String),
     Bool(bool),
@@ -59,7 +59,7 @@ pub enum Value {
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub typ: Type,
     pub lexeme: Option<String>,

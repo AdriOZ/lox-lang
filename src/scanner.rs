@@ -339,3 +339,74 @@ impl Scanner {
             .replace('"', "")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_string() {
+        let mut scanner = Scanner::new(&"".to_string());
+        let tokens = scanner.parse();
+        assert_eq!(tokens.len(), 1);
+        assert_eq!(tokens[0].typ, Type::EndOfFile);
+    }
+
+    #[test]
+    fn whitespace_string() {
+        let mut scanner = Scanner::new(&"        ".to_string());
+        let tokens = scanner.parse();
+        assert_eq!(tokens.len(), 1);
+        assert_eq!(tokens[0].typ, Type::EndOfFile);
+    }
+
+    #[test]
+    fn single_characters() {
+        let mut scanner = Scanner::new(&"(){},.-+;*".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 11);
+
+        let expected: Vec<Type> = vec![
+            Type::LeftParen,
+            Type::RightParen,
+            Type::LeftBrace,
+            Type::RightBrace,
+            Type::Comma,
+            Type::Dot,
+            Type::Minus,
+            Type::Plus,
+            Type::Semicolon,
+            Type::Star,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+    }
+
+    #[test]
+    fn one_or_two_characters() {
+        let mut scanner = Scanner::new(&"! != = == > >= < <=".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 9);
+
+        let expected: Vec<Type> = vec![
+            Type::Bang,
+            Type::BangEqual,
+            Type::Equal,
+            Type::EqualEqual,
+            Type::Greater,
+            Type::GreaterEqual,
+            Type::Less,
+            Type::LessEqual,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+    }
+}
