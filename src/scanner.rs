@@ -409,4 +409,39 @@ mod tests {
             tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
         );
     }
+
+    #[test]
+    fn keywords() {
+        let mut scanner = Scanner::new(
+            &"and class else fun for if nil or print return super this true false var while"
+                .to_string(),
+        );
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 17);
+
+        let expected: Vec<Type> = vec![
+            Type::And,
+            Type::Class,
+            Type::Else,
+            Type::Fun,
+            Type::For,
+            Type::If,
+            Type::Nil,
+            Type::Or,
+            Type::Print,
+            Type::Return,
+            Type::Super,
+            Type::This,
+            Type::True,
+            Type::False,
+            Type::Var,
+            Type::While,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+    }
 }
