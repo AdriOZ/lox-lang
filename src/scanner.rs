@@ -347,6 +347,7 @@ impl Scanner {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
@@ -446,6 +447,268 @@ mod tests {
         ];
         assert_eq!(
             expected,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+    }
+
+    #[test]
+    fn string_literals() {
+        let mut scanner = Scanner::new(
+            &"\"This is a string literal\" \"This is another string literal without ending quotes"
+                .to_string(),
+        );
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 3);
+
+        let expected_types: Vec<Type> = vec![Type::String, Type::String, Type::EndOfFile];
+        assert_eq!(
+            expected_types,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+
+        if let Value::Str(v) = &tokens[0].literal {
+            assert_eq!("This is a string literal", v);
+        }
+        if let Value::Str(v) = &tokens[1].literal {
+            assert_eq!("This is another string literal without ending quotes", v);
+        }
+    }
+
+    #[test]
+    fn numbers() {
+        let mut scanner = Scanner::new(&"1 1.1 1..1".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 6);
+
+        let expected_types: Vec<Type> = vec![
+            Type::Number,
+            Type::Number,
+            Type::Number,
+            Type::Dot,
+            Type::Number,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected_types,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+
+        if let Value::Num(v) = tokens[0].literal {
+            assert_eq!(1.0 as f64, v);
+        }
+        if let Value::Num(v) = tokens[1].literal {
+            assert_eq!(1.1 as f64, v);
+        }
+        if let Value::Num(v) = tokens[2].literal {
+            assert_eq!(1.0 as f64, v);
+        }
+        if let Value::Num(v) = tokens[4].literal {
+            assert_eq!(1.0 as f64, v);
+        }
+    }
+
+    #[test]
+    fn expressions() {
+        let mut scanner = Scanner::new(&"var v1 = true; var v2 = 1.1;".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 11);
+
+        let expected_types: Vec<Type> = vec![
+            Type::Var,
+            Type::Identifier,
+            Type::Equal,
+            Type::True,
+            Type::Semicolon,
+            Type::Var,
+            Type::Identifier,
+            Type::Equal,
+            Type::Number,
+            Type::Semicolon,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected_types,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+
+        if let Value::Str(v) = &tokens[1].literal {
+            assert_eq!("v1", v);
+        }
+        if let Value::Bool(v) = tokens[3].literal {
+            assert_eq!(true, v);
+        }
+        if let Value::Str(v) = &tokens[6].literal {
+            assert_eq!("v2", v);
+        }
+        if let Value::Num(v) = tokens[8].literal {
+            assert_eq!(1.1 as f64, v);
+        }
+    }
+
+    #[test]
+    fn functions() {
+        let mut scanner = Scanner::new(&"fun main() {}".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 7);
+
+        let expected_types: Vec<Type> = vec![
+            Type::Fun,
+            Type::Identifier,
+            Type::LeftParen,
+            Type::RightParen,
+            Type::LeftBrace,
+            Type::RightBrace,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected_types,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+
+        if let Value::Str(v) = &tokens[1].literal {
+            assert_eq!("main", v);
+        }
+    }
+
+    #[test]
+    fn classes() {
+        let mut scanner = Scanner::new(&"class Car {}".to_string());
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 5);
+
+        let expected_types: Vec<Type> = vec![
+            Type::Class,
+            Type::Identifier,
+            Type::LeftBrace,
+            Type::RightBrace,
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected_types,
+            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+        );
+
+        if let Value::Str(v) = &tokens[1].literal {
+            assert_eq!("Car", v);
+        }
+    }
+
+    #[test]
+    fn full_program() {
+        let mut scanner = Scanner::new(
+            &r#"
+            
+                class Person {
+                    Person(name, age, married) {
+                        this.name = name;
+                        this.age = age;
+                        this.married = married;
+                    }
+                }
+
+                fun main() {
+                    var p = Person("Bob", 30, false);
+                    print p.name;
+                    print p.age;
+                    print p.married;
+                }
+
+            "#
+            .to_string(),
+        );
+        let tokens = scanner.parse();
+
+        assert_eq!(tokens.len(), 66);
+
+        let expected_types: Vec<Type> = vec![
+            // Line
+            Type::Class,
+            Type::Identifier,
+            Type::LeftBrace,
+            // Line
+            Type::Identifier,
+            Type::LeftParen,
+            Type::Identifier,
+            Type::Comma,
+            Type::Identifier,
+            Type::Comma,
+            Type::Identifier,
+            Type::RightParen,
+            Type::LeftBrace,
+            // Line
+            Type::This,
+            Type::Dot,
+            Type::Identifier,
+            Type::Equal,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::This,
+            Type::Dot,
+            Type::Identifier,
+            Type::Equal,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::This,
+            Type::Dot,
+            Type::Identifier,
+            Type::Equal,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::RightBrace,
+            // Line
+            Type::RightBrace,
+            // Line
+            Type::Fun,
+            Type::Identifier,
+            Type::LeftParen,
+            Type::RightParen,
+            Type::LeftBrace,
+            // Line
+            Type::Var,
+            Type::Identifier,
+            Type::Equal,
+            Type::Identifier,
+            Type::LeftParen,
+            Type::String,
+            Type::Comma,
+            Type::Number,
+            Type::Comma,
+            Type::False,
+            Type::RightParen,
+            Type::Semicolon,
+            // Line
+            Type::Print,
+            Type::Identifier,
+            Type::Dot,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::Print,
+            Type::Identifier,
+            Type::Dot,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::Print,
+            Type::Identifier,
+            Type::Dot,
+            Type::Identifier,
+            Type::Semicolon,
+            // Line
+            Type::RightBrace,
+            // Line
+            Type::EndOfFile,
+        ];
+        assert_eq!(
+            expected_types,
             tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
         );
     }
