@@ -257,10 +257,15 @@ impl Scanner {
                             "while" => Type::While,
                             _ => Type::Identifier,
                         };
+                        let current_value = match current_type {
+                            Type::True => Value::Bool(true),
+                            Type::False => Value::Bool(false),
+                            _ => Value::Str(current_literal),
+                        };
                         Token {
                             typ: current_type,
                             lexeme: None,
-                            literal: Value::Str(current_literal),
+                            literal: current_value,
                             line: self.line,
                         }
                     } else {
