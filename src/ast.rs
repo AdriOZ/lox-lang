@@ -1,4 +1,4 @@
-use super::token::{Token, Value};
+use super::token;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
@@ -11,7 +11,7 @@ pub enum Expr {
 #[derive(Debug, PartialEq, Clone)]
 pub struct Binary {
     pub left: Expr,
-    pub op: Token,
+    pub op: token::Token,
     pub right: Expr,
 }
 
@@ -22,11 +22,11 @@ pub struct Grouping {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Literal {
-    pub value: Value,
+    pub value: token::Value,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Unary {
-    pub op: Token,
+    pub op: token::Token,
     pub right: Expr,
 }
