@@ -1,4 +1,4 @@
-use super::token::*;
+use super::token;
 use std::option::Option;
 
 pub struct Scanner {
@@ -21,14 +21,14 @@ impl Scanner {
         }
     }
 
-    pub fn parse(&mut self) -> Vec<Token> {
-        let mut result: Vec<Token> = Vec::with_capacity(self.end / 2);
+    pub fn parse(&mut self) -> Vec<token::Token> {
+        let mut result: Vec<token::Token> = Vec::with_capacity(self.end / 2);
         let mut tok = self.next();
         let mut has_next = true;
 
         while has_next {
             has_next = match tok.typ {
-                Type::EndOfFile => false,
+                token::Type::EndOfFile => false,
                 _ => true,
             };
             result.push(tok);
@@ -37,137 +37,137 @@ impl Scanner {
         result
     }
 
-    fn next(&mut self) -> Token {
+    fn next(&mut self) -> token::Token {
         self.skip_whitespace();
         self.start = self.cursor;
         let current = self.advance();
 
         if let Some(c) = current {
             match c {
-                '(' => Token {
-                    typ: Type::LeftParen,
+                '(' => token::Token {
+                    typ: token::Type::LeftParen,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                ')' => Token {
-                    typ: Type::RightParen,
+                ')' => token::Token {
+                    typ: token::Type::RightParen,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '{' => Token {
-                    typ: Type::LeftBrace,
+                '{' => token::Token {
+                    typ: token::Type::LeftBrace,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '}' => Token {
-                    typ: Type::RightBrace,
+                '}' => token::Token {
+                    typ: token::Type::RightBrace,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                ',' => Token {
-                    typ: Type::Comma,
+                ',' => token::Token {
+                    typ: token::Type::Comma,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '.' => Token {
-                    typ: Type::Dot,
+                '.' => token::Token {
+                    typ: token::Type::Dot,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                ';' => Token {
-                    typ: Type::Semicolon,
+                ';' => token::Token {
+                    typ: token::Type::Semicolon,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '+' => Token {
-                    typ: Type::Plus,
+                '+' => token::Token {
+                    typ: token::Type::Plus,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '-' => Token {
-                    typ: Type::Minus,
+                '-' => token::Token {
+                    typ: token::Type::Minus,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
-                '*' => Token {
-                    typ: Type::Star,
+                '*' => token::Token {
+                    typ: token::Type::Star,
                     lexeme: None,
-                    literal: Value::Str(self.get_current_literal()),
+                    literal: token::Value::Str(self.get_current_literal()),
                     line: self.line,
                 },
                 '!' => {
                     if let Some(_) = self.advance_if_match('=') {
-                        Token {
-                            typ: Type::BangEqual,
+                        token::Token {
+                            typ: token::Type::BangEqual,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
-                        Token {
-                            typ: Type::Bang,
+                        token::Token {
+                            typ: token::Type::Bang,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
                 }
                 '=' => {
                     if let Some(_) = self.advance_if_match('=') {
-                        Token {
-                            typ: Type::EqualEqual,
+                        token::Token {
+                            typ: token::Type::EqualEqual,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
-                        Token {
-                            typ: Type::Equal,
+                        token::Token {
+                            typ: token::Type::Equal,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
                 }
                 '<' => {
                     if let Some(_) = self.advance_if_match('=') {
-                        Token {
-                            typ: Type::LessEqual,
+                        token::Token {
+                            typ: token::Type::LessEqual,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
-                        Token {
-                            typ: Type::Less,
+                        token::Token {
+                            typ: token::Type::Less,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
                 }
                 '>' => {
                     if let Some(_) = self.advance_if_match('=') {
-                        Token {
-                            typ: Type::GreaterEqual,
+                        token::Token {
+                            typ: token::Type::GreaterEqual,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     } else {
-                        Token {
-                            typ: Type::Greater,
+                        token::Token {
+                            typ: token::Type::Greater,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -183,10 +183,10 @@ impl Scanner {
                         }
                         self.next()
                     } else {
-                        Token {
-                            typ: Type::Slash,
+                        token::Token {
+                            typ: token::Type::Slash,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
@@ -201,10 +201,10 @@ impl Scanner {
                         }
                     }
                     self.advance();
-                    Token {
-                        typ: Type::String,
+                    token::Token {
+                        typ: token::Type::String,
                         lexeme: None,
-                        literal: Value::Str(self.get_current_literal()),
+                        literal: token::Value::Str(self.get_current_literal()),
                         line: self.line,
                     }
                 }
@@ -221,10 +221,12 @@ impl Scanner {
                             break;
                         }
                     }
-                    Token {
-                        typ: Type::Number,
+                    token::Token {
+                        typ: token::Type::Number,
                         lexeme: None,
-                        literal: Value::Num(self.get_current_literal().parse::<f64>().unwrap()),
+                        literal: token::Value::Num(
+                            self.get_current_literal().parse::<f64>().unwrap(),
+                        ),
                         line: self.line,
                     }
                 }
@@ -239,50 +241,50 @@ impl Scanner {
                         }
                         let current_literal = self.get_current_literal();
                         let current_type = match current_literal.as_str() {
-                            "and" => Type::And,
-                            "class" => Type::Class,
-                            "else" => Type::Else,
-                            "fun" => Type::Fun,
-                            "for" => Type::For,
-                            "if" => Type::If,
-                            "nil" => Type::Nil,
-                            "or" => Type::Or,
-                            "print" => Type::Print,
-                            "return" => Type::Return,
-                            "super" => Type::Super,
-                            "this" => Type::This,
-                            "true" => Type::True,
-                            "false" => Type::False,
-                            "var" => Type::Var,
-                            "while" => Type::While,
-                            _ => Type::Identifier,
+                            "and" => token::Type::And,
+                            "class" => token::Type::Class,
+                            "else" => token::Type::Else,
+                            "fun" => token::Type::Fun,
+                            "for" => token::Type::For,
+                            "if" => token::Type::If,
+                            "nil" => token::Type::Nil,
+                            "or" => token::Type::Or,
+                            "print" => token::Type::Print,
+                            "return" => token::Type::Return,
+                            "super" => token::Type::Super,
+                            "this" => token::Type::This,
+                            "true" => token::Type::True,
+                            "false" => token::Type::False,
+                            "var" => token::Type::Var,
+                            "while" => token::Type::While,
+                            _ => token::Type::Identifier,
                         };
                         let current_value = match current_type {
-                            Type::True => Value::Bool(true),
-                            Type::False => Value::Bool(false),
-                            _ => Value::Str(current_literal),
+                            token::Type::True => token::Value::Bool(true),
+                            token::Type::False => token::Value::Bool(false),
+                            _ => token::Value::Str(current_literal),
                         };
-                        Token {
+                        token::Token {
                             typ: current_type,
                             lexeme: None,
                             literal: current_value,
                             line: self.line,
                         }
                     } else {
-                        Token {
-                            typ: Type::EndOfFile,
+                        token::Token {
+                            typ: token::Type::EndOfFile,
                             lexeme: None,
-                            literal: Value::Str(self.get_current_literal()),
+                            literal: token::Value::Str(self.get_current_literal()),
                             line: self.line,
                         }
                     }
                 }
             }
         } else {
-            Token {
-                typ: Type::EndOfFile,
+            token::Token {
+                typ: token::Type::EndOfFile,
                 lexeme: None,
-                literal: Value::None,
+                literal: token::Value::None,
                 line: self.line,
             }
         }
@@ -355,7 +357,7 @@ mod tests {
         let mut scanner = Scanner::new(&"".to_string());
         let tokens = scanner.parse();
         assert_eq!(tokens.len(), 1);
-        assert_eq!(tokens[0].typ, Type::EndOfFile);
+        assert_eq!(tokens[0].typ, token::Type::EndOfFile);
     }
 
     #[test]
@@ -363,7 +365,7 @@ mod tests {
         let mut scanner = Scanner::new(&"        ".to_string());
         let tokens = scanner.parse();
         assert_eq!(tokens.len(), 1);
-        assert_eq!(tokens[0].typ, Type::EndOfFile);
+        assert_eq!(tokens[0].typ, token::Type::EndOfFile);
     }
 
     #[test]
@@ -373,22 +375,22 @@ mod tests {
 
         assert_eq!(tokens.len(), 11);
 
-        let expected: Vec<Type> = vec![
-            Type::LeftParen,
-            Type::RightParen,
-            Type::LeftBrace,
-            Type::RightBrace,
-            Type::Comma,
-            Type::Dot,
-            Type::Minus,
-            Type::Plus,
-            Type::Semicolon,
-            Type::Star,
-            Type::EndOfFile,
+        let expected: Vec<token::Type> = vec![
+            token::Type::LeftParen,
+            token::Type::RightParen,
+            token::Type::LeftBrace,
+            token::Type::RightBrace,
+            token::Type::Comma,
+            token::Type::Dot,
+            token::Type::Minus,
+            token::Type::Plus,
+            token::Type::Semicolon,
+            token::Type::Star,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
     }
 
@@ -399,20 +401,20 @@ mod tests {
 
         assert_eq!(tokens.len(), 9);
 
-        let expected: Vec<Type> = vec![
-            Type::Bang,
-            Type::BangEqual,
-            Type::Equal,
-            Type::EqualEqual,
-            Type::Greater,
-            Type::GreaterEqual,
-            Type::Less,
-            Type::LessEqual,
-            Type::EndOfFile,
+        let expected: Vec<token::Type> = vec![
+            token::Type::Bang,
+            token::Type::BangEqual,
+            token::Type::Equal,
+            token::Type::EqualEqual,
+            token::Type::Greater,
+            token::Type::GreaterEqual,
+            token::Type::Less,
+            token::Type::LessEqual,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
     }
 
@@ -426,28 +428,28 @@ mod tests {
 
         assert_eq!(tokens.len(), 17);
 
-        let expected: Vec<Type> = vec![
-            Type::And,
-            Type::Class,
-            Type::Else,
-            Type::Fun,
-            Type::For,
-            Type::If,
-            Type::Nil,
-            Type::Or,
-            Type::Print,
-            Type::Return,
-            Type::Super,
-            Type::This,
-            Type::True,
-            Type::False,
-            Type::Var,
-            Type::While,
-            Type::EndOfFile,
+        let expected: Vec<token::Type> = vec![
+            token::Type::And,
+            token::Type::Class,
+            token::Type::Else,
+            token::Type::Fun,
+            token::Type::For,
+            token::Type::If,
+            token::Type::Nil,
+            token::Type::Or,
+            token::Type::Print,
+            token::Type::Return,
+            token::Type::Super,
+            token::Type::This,
+            token::Type::True,
+            token::Type::False,
+            token::Type::Var,
+            token::Type::While,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
     }
 
@@ -461,16 +463,20 @@ mod tests {
 
         assert_eq!(tokens.len(), 3);
 
-        let expected_types: Vec<Type> = vec![Type::String, Type::String, Type::EndOfFile];
+        let expected_types: Vec<token::Type> = vec![
+            token::Type::String,
+            token::Type::String,
+            token::Type::EndOfFile,
+        ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
 
-        if let Value::Str(v) = &tokens[0].literal {
+        if let token::Value::Str(v) = &tokens[0].literal {
             assert_eq!("This is a string literal", v);
         }
-        if let Value::Str(v) = &tokens[1].literal {
+        if let token::Value::Str(v) = &tokens[1].literal {
             assert_eq!("This is another string literal without ending quotes", v);
         }
     }
@@ -482,29 +488,29 @@ mod tests {
 
         assert_eq!(tokens.len(), 6);
 
-        let expected_types: Vec<Type> = vec![
-            Type::Number,
-            Type::Number,
-            Type::Number,
-            Type::Dot,
-            Type::Number,
-            Type::EndOfFile,
+        let expected_types: Vec<token::Type> = vec![
+            token::Type::Number,
+            token::Type::Number,
+            token::Type::Number,
+            token::Type::Dot,
+            token::Type::Number,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
 
-        if let Value::Num(v) = tokens[0].literal {
+        if let token::Value::Num(v) = tokens[0].literal {
             assert_eq!(1.0 as f64, v);
         }
-        if let Value::Num(v) = tokens[1].literal {
+        if let token::Value::Num(v) = tokens[1].literal {
             assert_eq!(1.1 as f64, v);
         }
-        if let Value::Num(v) = tokens[2].literal {
+        if let token::Value::Num(v) = tokens[2].literal {
             assert_eq!(1.0 as f64, v);
         }
-        if let Value::Num(v) = tokens[4].literal {
+        if let token::Value::Num(v) = tokens[4].literal {
             assert_eq!(1.0 as f64, v);
         }
     }
@@ -516,34 +522,34 @@ mod tests {
 
         assert_eq!(tokens.len(), 11);
 
-        let expected_types: Vec<Type> = vec![
-            Type::Var,
-            Type::Identifier,
-            Type::Equal,
-            Type::True,
-            Type::Semicolon,
-            Type::Var,
-            Type::Identifier,
-            Type::Equal,
-            Type::Number,
-            Type::Semicolon,
-            Type::EndOfFile,
+        let expected_types: Vec<token::Type> = vec![
+            token::Type::Var,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::True,
+            token::Type::Semicolon,
+            token::Type::Var,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::Number,
+            token::Type::Semicolon,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
 
-        if let Value::Str(v) = &tokens[1].literal {
+        if let token::Value::Str(v) = &tokens[1].literal {
             assert_eq!("v1", v);
         }
-        if let Value::Bool(v) = tokens[3].literal {
+        if let token::Value::Bool(v) = tokens[3].literal {
             assert_eq!(true, v);
         }
-        if let Value::Str(v) = &tokens[6].literal {
+        if let token::Value::Str(v) = &tokens[6].literal {
             assert_eq!("v2", v);
         }
-        if let Value::Num(v) = tokens[8].literal {
+        if let token::Value::Num(v) = tokens[8].literal {
             assert_eq!(1.1 as f64, v);
         }
     }
@@ -555,21 +561,21 @@ mod tests {
 
         assert_eq!(tokens.len(), 7);
 
-        let expected_types: Vec<Type> = vec![
-            Type::Fun,
-            Type::Identifier,
-            Type::LeftParen,
-            Type::RightParen,
-            Type::LeftBrace,
-            Type::RightBrace,
-            Type::EndOfFile,
+        let expected_types: Vec<token::Type> = vec![
+            token::Type::Fun,
+            token::Type::Identifier,
+            token::Type::LeftParen,
+            token::Type::RightParen,
+            token::Type::LeftBrace,
+            token::Type::RightBrace,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
 
-        if let Value::Str(v) = &tokens[1].literal {
+        if let token::Value::Str(v) = &tokens[1].literal {
             assert_eq!("main", v);
         }
     }
@@ -581,19 +587,19 @@ mod tests {
 
         assert_eq!(tokens.len(), 5);
 
-        let expected_types: Vec<Type> = vec![
-            Type::Class,
-            Type::Identifier,
-            Type::LeftBrace,
-            Type::RightBrace,
-            Type::EndOfFile,
+        let expected_types: Vec<token::Type> = vec![
+            token::Type::Class,
+            token::Type::Identifier,
+            token::Type::LeftBrace,
+            token::Type::RightBrace,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
 
-        if let Value::Str(v) = &tokens[1].literal {
+        if let token::Value::Str(v) = &tokens[1].literal {
             assert_eq!("Car", v);
         }
     }
@@ -625,91 +631,91 @@ mod tests {
 
         assert_eq!(tokens.len(), 66);
 
-        let expected_types: Vec<Type> = vec![
+        let expected_types: Vec<token::Type> = vec![
             // Line
-            Type::Class,
-            Type::Identifier,
-            Type::LeftBrace,
+            token::Type::Class,
+            token::Type::Identifier,
+            token::Type::LeftBrace,
             // Line
-            Type::Identifier,
-            Type::LeftParen,
-            Type::Identifier,
-            Type::Comma,
-            Type::Identifier,
-            Type::Comma,
-            Type::Identifier,
-            Type::RightParen,
-            Type::LeftBrace,
+            token::Type::Identifier,
+            token::Type::LeftParen,
+            token::Type::Identifier,
+            token::Type::Comma,
+            token::Type::Identifier,
+            token::Type::Comma,
+            token::Type::Identifier,
+            token::Type::RightParen,
+            token::Type::LeftBrace,
             // Line
-            Type::This,
-            Type::Dot,
-            Type::Identifier,
-            Type::Equal,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::This,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::This,
-            Type::Dot,
-            Type::Identifier,
-            Type::Equal,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::This,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::This,
-            Type::Dot,
-            Type::Identifier,
-            Type::Equal,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::This,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::RightBrace,
+            token::Type::RightBrace,
             // Line
-            Type::RightBrace,
+            token::Type::RightBrace,
             // Line
-            Type::Fun,
-            Type::Identifier,
-            Type::LeftParen,
-            Type::RightParen,
-            Type::LeftBrace,
+            token::Type::Fun,
+            token::Type::Identifier,
+            token::Type::LeftParen,
+            token::Type::RightParen,
+            token::Type::LeftBrace,
             // Line
-            Type::Var,
-            Type::Identifier,
-            Type::Equal,
-            Type::Identifier,
-            Type::LeftParen,
-            Type::String,
-            Type::Comma,
-            Type::Number,
-            Type::Comma,
-            Type::False,
-            Type::RightParen,
-            Type::Semicolon,
+            token::Type::Var,
+            token::Type::Identifier,
+            token::Type::Equal,
+            token::Type::Identifier,
+            token::Type::LeftParen,
+            token::Type::String,
+            token::Type::Comma,
+            token::Type::Number,
+            token::Type::Comma,
+            token::Type::False,
+            token::Type::RightParen,
+            token::Type::Semicolon,
             // Line
-            Type::Print,
-            Type::Identifier,
-            Type::Dot,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::Print,
+            token::Type::Identifier,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::Print,
-            Type::Identifier,
-            Type::Dot,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::Print,
+            token::Type::Identifier,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::Print,
-            Type::Identifier,
-            Type::Dot,
-            Type::Identifier,
-            Type::Semicolon,
+            token::Type::Print,
+            token::Type::Identifier,
+            token::Type::Dot,
+            token::Type::Identifier,
+            token::Type::Semicolon,
             // Line
-            Type::RightBrace,
+            token::Type::RightBrace,
             // Line
-            Type::EndOfFile,
+            token::Type::EndOfFile,
         ];
         assert_eq!(
             expected_types,
-            tokens.iter().map(|v| v.typ).collect::<Vec<Type>>()
+            tokens.iter().map(|v| v.typ).collect::<Vec<token::Type>>()
         );
     }
 }
