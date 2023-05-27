@@ -28,7 +28,8 @@ fn run_repl() {
 
         let mut scanner = scanner::Scanner::new(&line);
         let tokens = scanner.parse();
-        println!("{:#?}", tokens);
+        let mut parser = parser::Parser::new(tokens);
+        println!("{:#?}", parser.parse());
     }
 }
 
