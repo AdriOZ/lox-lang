@@ -1,4 +1,5 @@
 pub mod ast;
+pub mod parser;
 pub mod scanner;
 pub mod token;
 
@@ -37,7 +38,8 @@ fn run_file(filename: &String) {
         let contents = fs::read_to_string(path).expect("Cannot read file");
         let mut scanner = scanner::Scanner::new(&contents);
         let tokens = scanner.parse();
-        println!("{:#?}", tokens);
+        let mut parser = parser::Parser::new(tokens);
+        println!("{:#?}", parser.parse());
     } else {
         println!("File {} does not exist", filename);
     }
