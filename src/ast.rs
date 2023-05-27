@@ -6,6 +6,7 @@ pub enum Expr {
     Grouping(Box<Grouping>),
     Literal(Box<Literal>),
     Unary(Box<Unary>),
+    None,
 }
 
 #[derive(Debug, PartialEq, Clone)]
