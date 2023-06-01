@@ -97,8 +97,12 @@ impl Parser {
             }))
         } else if self.match_token_types_left_paren() {
             let exp = self.expression();
-            self.consume(token::Type::RightParen, "expecting ')'");
-            ast::Expr::Grouping(Box::new(ast::Grouping { exp }))
+            if !self.consume(token::Type::RightParen, "expecting ')'") {
+                self.synchronize();
+                ast::Expr::None
+            } else {
+                ast::Expr::Grouping(Box::new(ast::Grouping { exp }))
+            }
         } else {
             ast::Expr::None
         }
@@ -176,16 +180,41 @@ impl Parser {
         m
     }
 
-    fn consume(&mut self, token_type: token::Type, msg: &str) {
+    fn consume(&mut self, token_type: token::Type, msg: &str) -> bool {
         let current_token = &self.tokens[self.cursor];
 
         if current_token.typ == token_type {
             self.advance();
+            true
         } else {
             self.errors.push(std::fmt::format(format_args!(
                 "line {}: {}",
                 current_token.line, msg
             )));
+            false
+        }
+    }
+
+    fn synchronize(&mut self) {
+        self.advance();
+
+        while !self.is_at_end() {
+            let previous_type = self.previous().typ;
+            let current_type = self.tokens[self.cursor].typ;
+
+            if previous_type == token::Type::Semicolon
+                || current_type == token::Type::Class
+                || current_type == token::Type::For
+                || current_type == token::Type::Fun
+                || current_type == token::Type::If
+                || current_type == token::Type::Print
+                || current_type == token::Type::Return
+                || current_type == token::Type::Var
+                || current_type == token::Type::While
+            {
+                return;
+            }
+            self.advance();
         }
     }
 
