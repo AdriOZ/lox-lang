@@ -4,16 +4,27 @@ use super::token;
 pub struct Parser {
     tokens: Vec<token::Token>,
     cursor: usize,
+    errors: Vec<String>,
 }
 
 impl Parser {
     // Public
     pub fn new(tokens: Vec<token::Token>) -> Self {
-        Parser { tokens, cursor: 0 }
+        Parser {
+            tokens,
+            cursor: 0,
+            errors: Vec::with_capacity(5),
+        }
     }
 
-    pub fn parse(&mut self) -> ast::Expr {
-        self.expression()
+    pub fn parse(&mut self) -> Result<ast::Expr, String> {
+        let e = self.expression();
+
+        if self.errors.len() == 0 {
+            Ok(e)
+        } else {
+            Err(self.errors.join("\n"))
+        }
     }
 
     // Parse
@@ -86,6 +97,7 @@ impl Parser {
             }))
         } else if self.match_token_types_left_paren() {
             let exp = self.expression();
+            self.consume(token::Type::RightParen, "expecting ')'");
             ast::Expr::Grouping(Box::new(ast::Grouping { exp }))
         } else {
             ast::Expr::None
@@ -162,6 +174,19 @@ impl Parser {
             self.advance();
         }
         m
+    }
+
+    fn consume(&mut self, token_type: token::Type, msg: &str) {
+        let current_token = &self.tokens[self.cursor];
+
+        if current_token.typ == token_type {
+            self.advance();
+        } else {
+            self.errors.push(std::fmt::format(format_args!(
+                "line {}: {}",
+                current_token.line, msg
+            )));
+        }
     }
 
     fn advance(&mut self) -> token::Token {
