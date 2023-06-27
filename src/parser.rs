@@ -104,6 +104,10 @@ impl Parser {
                 ast::Expr::Grouping(Box::new(ast::Grouping { exp }))
             }
         } else {
+            self.errors.push(std::fmt::format(format_args!(
+                "line {}: {}",
+                self.tokens[self.cursor].line, "expect expression"
+            )));
             ast::Expr::None
         }
     }
